@@ -58,6 +58,19 @@ async function run(octokit, context, token) {
 
 	console.log(`PR #${pull_number} is targetted at ${pr.base.ref} (${pr.base.sha})`);
 
+	if (getInput('merge-diff')) {
+		startGroup(`[current] Merge ${pr.head.ref} into ${pr.base.ref}`);
+		try {
+			await exec(`git merge ${pr.head.ref}asdf`);
+		}
+		catch (e) {
+			console.log(e);
+			console.log('failed to merge, will compare unmerged');
+			await exec('git merge --abort');
+		}
+		endGroup();
+	}
+
 	const buildScript = getInput('build-script') || 'build';
 	const cwd = process.cwd();
 
@@ -139,7 +152,7 @@ async function run(octokit, context, token) {
 		omitUnchanged: toBool(getInput('omit-unchanged')),
 		showTotal: toBool(getInput('show-total'))
 	});
-	
+
 	let outputRawMarkdown = false;
 
 	const commentInfo = {
