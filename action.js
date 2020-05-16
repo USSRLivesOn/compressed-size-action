@@ -73,18 +73,6 @@ async function run(octokit, context, token) {
 		installScript = `npm ci`;
 	}
 
-	startGroup(`[current] Install Dependencies`);
-	console.log(`Installing using ${installScript}`)
-	await exec(installScript);
-	endGroup();
-
-	startGroup(`[current] Build using ${npm}`);
-	console.log(`Building using ${npm} run ${buildScript}`);
-	await exec(`${npm} run ${buildScript}`);
-	endGroup();
-
-	const newSizes = await plugin.readFromDisk(cwd);
-
 	startGroup(`[base] Checkout target branch`);
 	let baseRef;
 	try {
@@ -126,6 +114,22 @@ async function run(octokit, context, token) {
 	endGroup();
 
 	const oldSizes = await plugin.readFromDisk(cwd);
+
+	startGroup(`[current] Checkout PR HEAD`);
+	await exec(`git reset --hard ${pr.head.sha}`);
+	endGroup();
+
+	startGroup(`[current] Install Dependencies`);
+	console.log(`Installing using ${installScript}`)
+	await exec(installScript);
+	endGroup();
+
+	startGroup(`[current] Build using ${npm}`);
+	console.log(`Building using ${npm} run ${buildScript}`);
+	await exec(`${npm} run ${buildScript}`);
+	endGroup();
+
+	const newSizes = await plugin.readFromDisk(cwd);
 
 	const diff = await plugin.getDiff(oldSizes, newSizes);
 
