@@ -115,9 +115,16 @@ async function run(octokit, context, token) {
 
 	const oldSizes = await plugin.readFromDisk(cwd);
 
-	startGroup(`[current] Checkout PR HEAD`);
-	await exec(`git reset --hard ${pr.head.sha}`);
-	endGroup();
+	if (getInput('compare-merged-result')) {
+		startGroup(`[current] Merge ${pr.head.ref} into ${baseRef || pr.base.sha}`);
+		await exec(`git reset --hard ${baseRef || pr.base.sha}`);
+		await exec(`git merge --no-verify ${pr.head.sha}`);
+		endGroup();
+	} else {
+		startGroup(`[current] Checkout PR HEAD`);
+		await exec(`git reset --hard ${pr.head.sha}`);
+		endGroup();
+	}
 
 	startGroup(`[current] Install Dependencies`);
 	console.log(`Installing using ${installScript}`)
