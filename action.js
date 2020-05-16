@@ -58,7 +58,7 @@ async function run(octokit, context, token) {
 
 	console.log(`PR #${pull_number} is targetted at ${pr.base.ref} (${pr.base.sha})`);
 
-	if (getInput('merge-diff')) {
+	if (getInput('compare-merged-result')) {
 		startGroup(`[current] Merge ${pr.head.ref} into ${pr.base.ref}`);
 		try {
 			await exec(`git merge ${pr.head.ref}asdf`);
