@@ -58,6 +58,12 @@ async function run(octokit, context, token) {
 
 	console.log(`PR #${pull_number} is targetted at ${pr.base.ref} (${pr.base.sha})`);
 
+	if (getInput('compare-merged-result')) {
+		startGroup(`[current] Merge ${pr.head.ref} into ${pr.base.ref}`);
+		await exec(`git merge ${pr.head.ref}`);
+		endGroup();
+	}
+
 	const buildScript = getInput('build-script') || 'build';
 	const cwd = process.cwd();
 
@@ -139,7 +145,7 @@ async function run(octokit, context, token) {
 		omitUnchanged: toBool(getInput('omit-unchanged')),
 		showTotal: toBool(getInput('show-total'))
 	});
-	
+
 	let outputRawMarkdown = false;
 
 	const commentInfo = {
